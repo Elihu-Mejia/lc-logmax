@@ -127,4 +127,35 @@ class PokemonTest extends TestCase
                 'weight' => '6 kg',
             ]);
     }
+
+    public function test_it_can_list_pokemon_details_paginated()
+    {
+        Http::fake([
+            'https://pokeapi.co/api/v2/pokemon*' => Http::response([
+                'count' => 100,
+                'results' => [
+                    ['name' => 'bulbasaur', 'url' => '...'],
+                    ['name' => 'ivysaur', 'url' => '...'],
+                ],
+            ], 200),
+            'https://pokeapi.co/api/v2/pokemon/bulbasaur' => Http::response([
+                'name' => 'bulbasaur',
+                'height' => 7,
+                'weight' => 69,
+            ], 200),
+            'https://pokeapi.co/api/v2/pokemon/ivysaur' => Http::response([
+                'name' => 'ivysaur',
+                'height' => 10,
+                'weight' => 130,
+            ], 200),
+        ]);
+
+        $response = $this->getJson('/api/pokemon/details?limit=2');
+
+        $response->assertOk()
+            ->assertJsonCount(2, 'results')
+            ->assertJsonPath('results.0.name', 'bulbasaur')
+            ->assertJsonPath('results.0.height', '70 cm')
+            ->assertJsonPath('results.1.weight', '13 kg');
+    }
 }

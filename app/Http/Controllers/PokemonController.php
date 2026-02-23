@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PokemonResource;
 use App\Services\PokeApiService;
 use Illuminate\Http\Request;
 
@@ -54,10 +55,23 @@ class PokemonController extends Controller
             abort(404);
         }
 
+        return new PokemonResource($pokemon);
+    }
+
+    public function indexDetails(Request $request)
+    {
+        $limit = $request->input('limit', 20);
+        $offset = $request->input('offset', 0);
+
+        $response = $this->pokeApiService->getPaginated($limit, $offset);
+
+        $results = collect($response['results'])->map(function ($item) {
+            return $this->pokeApiService->getDetails($item['name']);
+        })->filter();
+
         return [
-            'name' => $pokemon['name'],
-            'height' => $pokemon['height']*10 . ' cm',
-            'weight' => $pokemon['weight'] / 10 . ' kg',
+            'count' => $response['count'],
+            'results' => PokemonResource::collection($results)->values(),
         ];
     }
 }

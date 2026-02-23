@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class PokemonResource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(Request $request): array
+    {
+        return [
+            'name' => $this->resource['name'],
+            'height' => $this->resource['height'] * 10 . ' cm',
+            'weight' => $this->resource['weight'] / 10 . ' kg',
+        ];
+    }
+}
