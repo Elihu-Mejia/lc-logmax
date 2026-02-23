@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PokemonResource;
+use App\Models\Pokemon;
 use App\Services\PokeApiService;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class PokemonController extends Controller
 {
@@ -73,5 +75,12 @@ class PokemonController extends Controller
             'count' => $response['count'],
             'results' => PokemonResource::collection($results)->values(),
         ];
+    }
+
+    public function webIndex()
+    {
+        return Inertia::render('Pokemon/Index', [
+            'pokemons' => Pokemon::paginate(20),
+        ]);
     }
 }
