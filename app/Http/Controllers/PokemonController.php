@@ -45,4 +45,19 @@ class PokemonController extends Controller
             'results' => $results->slice($offset, $limit)->values(),
         ];
     }
+
+    public function show(string $name)
+    {
+        $pokemon = $this->pokeApiService->getDetails($name);
+
+        if (! $pokemon) {
+            abort(404);
+        }
+
+        return [
+            'name' => $pokemon['name'],
+            'height' => $pokemon['height']*10 . ' cm',
+            'weight' => $pokemon['weight'] / 10 . ' kg',
+        ];
+    }
 }

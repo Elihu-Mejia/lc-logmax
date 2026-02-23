@@ -34,4 +34,15 @@ class PokeApiService
             'offset' => $offset,
         ])->json();
     }
+
+    public function getDetails(string $name): ?array
+    {
+        $response = Http::get("{$this->baseUrl}/pokemon/{$name}");
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return null;
+    }
 }

@@ -87,4 +87,44 @@ class PokemonTest extends TestCase
             ->assertJsonCount(1, 'results')
             ->assertJsonPath('results.0.name', 'squirtle');
     }
+
+    public function test_it_can_filter_by_type_and_name()
+    {
+        Http::fake([
+            'https://pokeapi.co/api/v2/type/fire' => Http::response([
+                'pokemon' => [
+                    ['pokemon' => ['name' => 'charmander', 'url' => '...']],
+                    ['pokemon' => ['name' => 'charmeleon', 'url' => '...']],
+                    ['pokemon' => ['name' => 'vulpix', 'url' => '...']],
+                ],
+            ], 200),
+        ]);
+
+        $response = $this->getJson('/api/pokemon/fire?name=char');
+
+        $response->assertOk()
+            ->assertJsonCount(2, 'results')
+            ->assertJsonPath('results.0.name', 'charmander')
+            ->assertJsonPath('results.1.name', 'charmeleon');
+    }
+
+    public function test_it_can_get_pokemon_details()
+    {
+        Http::fake([
+            'https://pokeapi.co/api/v2/pokemon/pikachu' => Http::response([
+                'name' => 'pikachu',
+                'height' => 4,
+                'weight' => 60,
+            ], 200),
+        ]);
+
+        $response = $this->getJson('/api/pokemon/pikachu/details');
+
+        $response->assertOk()
+            ->assertJson([
+                'name' => 'pikachu',
+                'height' => '40 cm',
+                'weight' => '6 kg',
+            ]);
+    }
 }
