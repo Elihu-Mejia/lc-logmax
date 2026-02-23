@@ -1,0 +1,73 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    environment:
+      APP_NAME: ${APP_NAME}
+      APP_ENV: ${APP_ENV}
+      APP_KEY: ${APP_KEY}
+      APP_DEBUG: ${APP_DEBUG}
+      APP_URL: ${APP_URL}
+      DB_CONNECTION: ${DB_CONNECTION}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/vendor
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  db:
+    image: sqlite:latest
+    # For SQLite, no service needed - it's file-based
+    # Uncomment below if using MySQL instead:
+    # image: mysql:8.0
+    # environment:
+    #   MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    #   MYSQL_DATABASE: ${DB_DATABASE}
+    #   MYSQL_USER: ${DB_USERNAME}
+    #   MYSQL_PASSWORD: ${DB_PASSWORD}
+    # volumes:
+    #   - db_data:/var/lib/mysql
+    # ports:
+    #   - "3306:3306"
+    # networks:
+    #   - app-network
+
+  # Uncomment for Redis support
+  # redis:
+  #   image: redis:7-alpine
+  #   ports:
+  #     - "6379:6379"
+  #   networks:
+  #     - app-network
+
+  # Nginx reverse proxy (for production-like setup)
+  # nginx:
+  #   image: nginx:alpine
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - .:/app
+  #     - ./docker/nginx/conf.d:/etc/nginx/conf.d
+  #   depends_on:
+  #     - app
+  #   networks:
+  #     - app-network
+
+volumes:
+  db_data:
+
+networks:
+  app-network:
+    driver: bridge
